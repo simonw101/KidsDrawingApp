@@ -53,6 +53,14 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
 
     }
 
+    fun setColor(newColor: String) {
+
+        color = Color.parseColor(newColor)
+
+        mDrawPaint!!.color = color
+
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
