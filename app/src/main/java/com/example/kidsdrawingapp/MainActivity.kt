@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.media.MediaScannerConnection
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -244,6 +245,15 @@ class MainActivity : AppCompatActivity() {
 
     private inner class BitmapAsyncTask(val mBitmap: Bitmap): AsyncTask<Any, Void, String>() {
 
+        private lateinit var mProgressDialog : Dialog
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+
+            showProgressDialog()
+
+        }
+
         override fun doInBackground(vararg params: Any?): String {
 
             var result = ""
@@ -287,6 +297,8 @@ class MainActivity : AppCompatActivity() {
         override fun onPostExecute(result: String?) {
             super.onPostExecute(result)
 
+            cancelProgressDialog()
+
             if (result!!.isNotEmpty()) {
 
                 Toast.makeText(this@MainActivity, "File save successfully $result", Toast.LENGTH_LONG).show()
@@ -296,6 +308,38 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "Something went wrong while saving the file", Toast.LENGTH_LONG).show()
 
             }
+
+            MediaScannerConnection.scanFile(this@MainActivity, arrayOf(result), null) {
+
+                path, uri -> val shareIntent = Intent()
+
+                shareIntent.action = Intent.ACTION_SEND
+
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+
+                shareIntent.type = "image/png"
+
+                startActivity(Intent.createChooser(shareIntent, "Share"))
+
+            }
+
+
+        }
+
+        private fun showProgressDialog() {
+
+            mProgressDialog = Dialog(this@MainActivity)
+
+            mProgressDialog.setContentView(R.layout.dialog_custom_progress)
+
+            mProgressDialog.show()
+
+        }
+
+        private fun cancelProgressDialog() {
+
+            mProgressDialog.dismiss()
+
         }
 
 
